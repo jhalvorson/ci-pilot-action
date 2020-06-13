@@ -33,7 +33,7 @@ async function run(): Promise<void> {
 
     console.log('checking for comment')
     const comment =
-      context.eventName === 'pull_request_review_comment'
+      context.eventName === 'issue_comment'
         ? context.payload.comment.body
         : false
 
