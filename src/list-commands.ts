@@ -9,11 +9,11 @@ export const listCommands = async (
   try {
     console.log('running help command')
     const exampleTag = `staging-${new Date().getTime()}`
-    const body = `### :wave: hello\n\n\n\n
-      You can use the following commands to control ci-pilot:\n\n\n
-      \`ci-pilot deploy to staging\`\n\n
-      This will tag your current branch with a staging tag (e.g ${exampleTag}), allowing your CI to deploy to a staging environment.
-    `
+    const body =
+      // eslint-disable-next-line prefer-template
+      '### :wave: hello\n\n\n\nYou can use the following commands to control ci-pilot:\n\n\n`ci-pilot deploy to staging`\n\nThis will tag your current branch with a staging tag (e.g ' +
+      exampleTag +
+      '), allowing your CI to deploy to a staging environment.'
 
     if (context.issue.number) {
       await client.issues.createComment({
