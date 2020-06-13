@@ -2058,9 +2058,10 @@ function run() {
                 core.setFailed(`A deployment to staging was triggered from ${github_1.context.ref}. Staging deployments may only be triggered from release branches.`);
             }
             console.log('checking for comment');
-            const comment = github_1.context.eventName === 'pull_request_review_comment'
+            const comment = github_1.context.eventName === 'issue_comment'
                 ? github_1.context.payload.comment.body
                 : false;
+            console.log({ comment, body: github_1.context.payload.comment });
             if (comment === STAGING_DEPLOY_COMMENT) {
                 tag_staging_1.tagStaging(client);
             }
