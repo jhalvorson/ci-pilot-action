@@ -1,8 +1,10 @@
-/* eslint-disable no-console */
 import * as core from '@actions/core'
 import {context, GitHub} from '@actions/github'
+import {tagStaging} from './tag-staging'
+import {listCommands} from './list-commands'
 
 const STAGING_DEPLOY_COMMENT = 'ci-pilot deploy to staging'
+const HELP_COMMENT = 'ci-pilot help'
 
 async function run(): Promise<void> {
   try {
@@ -31,56 +33,16 @@ async function run(): Promise<void> {
 
     console.log('checking for comment')
     const comment =
-      context.eventName === 'issue_comment'
+      context.eventName === 'pull_request_review_comment'
         ? context.payload.comment.body
         : false
 
-    if (comment && comment !== STAGING_DEPLOY_COMMENT) {
-      core.setFailed(`comment did not match "${STAGING_DEPLOY_COMMENT}"`)
-      return
+    if (comment === STAGING_DEPLOY_COMMENT) {
+      tagStaging(client)
     }
 
-    if (comment) {
-      console.log('comment detected and is valid, proceeding.')
-      const {GITHUB_SHA} = process.env
-
-      if (!GITHUB_SHA) {
-        core.setFailed('GITHUB_SHA not found')
-        return
-      }
-
-      const {owner, repo} = context.repo
-
-      const newTag = `staging-${new Date().getTime()}`
-      console.log(`tagging ${context.ref} with ${newTag}`)
-
-      const commitNewTag = await client.git.createTag({
-        ...context.repo,
-        tag: newTag,
-        message: newTag,
-        object: GITHUB_SHA,
-        type: 'commit'
-      })
-
-      await client.git
-        .createRef({
-          ...context.repo,
-          ref: `refs/tags/${newTag}`,
-          sha: commitNewTag.data.sha
-        })
-        .then(async () => {
-          // React to the comment to acknowledge that we've tagged the branch
-          await client.reactions.createForIssueComment({
-            owner,
-            repo,
-            // eslint-disable-next-line @typescript-eslint/camelcase
-            comment_id: context.payload.comment.id,
-            content: '+1'
-          })
-        })
-        .catch(() => {
-          core.setFailed('failed to commit new tag')
-        })
+    if (comment === HELP_COMMENT) {
+      listCommands(client)
     }
   } catch (error) {
     // The action has failed, use built in error handling
