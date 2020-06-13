@@ -2037,7 +2037,7 @@ const STAGING_DEPLOY_COMMENT = 'ci-pilot deploy to staging';
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const token = core.getInput('repo-token', { required: true });
+            const token = core.getInput('token', { required: true });
             if (!token) {
                 core.setFailed('GITHUB_TOKEN is required.');
                 return;

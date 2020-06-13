@@ -6,6 +6,9 @@
 
 A bolt on set of GitHub Actions to perfect your release, deployment and sign off process. Intended to be used alongside [ci-pilot](https://github.com/ultm8soulja/ci-pilot).
 
+## Adding this to your repository
+
+
 ## Action: Stage Release
 
 The stage release action listens for the following comment on any `release/<version>` PRs:
