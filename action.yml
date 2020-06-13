@@ -1,11 +1,14 @@
 name: "ci-pilot-stage-release"
-description: "A set of actions for ci-pilot"
-author: "Jamie Halvorson"
+description: Tags branches when a comment is left on a PR
+author: Jamie Halvorson <jamie@halvorson.co.uk>
 inputs:
-  devMode:
-    description: 'run the action in development mode'
+  dev_mode:
+    description: "run the action in development mode"
     required: false
     default: "false"
+outputs:
+  comment_body:
+    description: "the comment left on the PR"
 runs:
   using: "node12"
   main: "dist/index.js"
