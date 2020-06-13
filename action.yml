@@ -1,10 +1,17 @@
-name: 'Your name here'
-description: 'Provide a description here'
-author: 'Your name or organization here'
+name: "ci-pilot-stage-release"
+description: Tags branches when a comment is left on a PR
+author: Jamie Halvorson <jamie@halvorson.co.uk>
 inputs:
-  myInput:              # change this
-    description: 'input description here'
-    default: 'default value if applicable'
+  dev_mode:
+    description: "run the action in development mode"
+    required: false
+    default: "false"
+  token:
+    description: 'The GitHub authentication token'
+    required: false
+outputs:
+  comment_body:
+    description: "the comment left on the PR"
 runs:
-  using: 'node12'
-  main: 'dist/index.js'
+  using: "node12"
+  main: "dist/index.js"
