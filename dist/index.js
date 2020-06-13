@@ -9118,14 +9118,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.listCommands = void 0;
 const core = __importStar(__webpack_require__(470));
 exports.listCommands = (client, context) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
     try {
         console.log('running help command');
         const body = '### :wave: here are some helpful commands\n\n\n`ci-pilot deploy to staging`\nThis will tag your current branch with a staging command, allowing your CI to deploy to a staging environment.';
-        if ((_a = context.payload.pull_request) === null || _a === void 0 ? void 0 : _a.number) {
+        if (context.issue.number) {
             yield client.issues.createComment(Object.assign(Object.assign({}, context.repo), { body, 
                 // eslint-disable-next-line @typescript-eslint/camelcase
-                issue_number: context.payload.pull_request.number }));
+                issue_number: context.issue.number }));
         }
     }
     catch (err) {
