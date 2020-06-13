@@ -2059,9 +2059,9 @@ function run() {
             }
             console.log('checking for comment');
             const comment = github_1.context.eventName === 'issue_comment'
-                ? github_1.context.payload.comment.comment
+                ? github_1.context.payload.comment.body
                 : false;
-            console.log({ comment, body: github_1.context.payload.comment });
+            console.log({ comment, body: github_1.context.payload.comment.body });
             if (comment === STAGING_DEPLOY_COMMENT) {
                 tag_staging_1.tagStaging(client);
             }
@@ -9101,6 +9101,7 @@ exports.listCommands = void 0;
 const github_1 = __webpack_require__(469);
 exports.listCommands = (client) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
+    console.log('running help command');
     const body = '### :wave: here are some helpful commands\n\n\n`ci-pilot deploy to staging`\nThis will tag your current branch with a staging command, allowing your CI to deploy to a staging environment.';
     if ((_a = github_1.context.payload.pull_request) === null || _a === void 0 ? void 0 : _a.number) {
         yield client.issues.createComment(Object.assign(Object.assign({}, github_1.context.repo), { body, 

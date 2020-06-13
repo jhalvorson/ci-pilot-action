@@ -34,10 +34,10 @@ async function run(): Promise<void> {
     console.log('checking for comment')
     const comment =
       context.eventName === 'issue_comment'
-        ? context.payload.comment.comment
+        ? context.payload.comment.body
         : false
 
-    console.log({comment, body: context.payload.comment})
+    console.log({comment, body: context.payload.comment.body})
 
     if (comment === STAGING_DEPLOY_COMMENT) {
       tagStaging(client)
