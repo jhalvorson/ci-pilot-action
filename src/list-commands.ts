@@ -8,8 +8,12 @@ export const listCommands = async (
 ): Promise<void> => {
   try {
     console.log('running help command')
-    const body =
-      '### :wave: CI Pilot here :woman_pilot:\n\n\n\nYou can use the following commands to control ci-pilot:\n\n\n`ci-pilot deploy to staging`\n\nThis will tag your current branch with a staging command, allowing your CI to deploy to a staging environment.'
+    const exampleTag = `staging-${new Date().getTime()}`
+    const body = `### :wave: hello\n\n\n\n
+      You can use the following commands to control ci-pilot:\n\n\n
+      \`ci-pilot deploy to staging\`\n\n
+      This will tag your current branch with a staging tag (e.g ${exampleTag}), allowing your CI to deploy to a staging environment.
+    `
 
     if (context.issue.number) {
       await client.issues.createComment({
