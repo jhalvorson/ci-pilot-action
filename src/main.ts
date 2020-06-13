@@ -8,7 +8,7 @@ async function run(): Promise<void> {
     const isDevMode: boolean = core.getInput('devMode') === 'true'
 
     // Ensure that we're on the release branch, if we're not on the release
-    // branch then immediately kill the job and provide some basic feedback
+    // branch then immediately fail the job and provide some basic feedback
     const currentBranch = context.ref
     if (!isDevMode && !currentBranch.includes('release/')) {
       core.setFailed(

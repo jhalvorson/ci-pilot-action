@@ -951,10 +951,13 @@ const github_1 = __webpack_require__(469);
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
+            // You can use the isDevMode flag to skip certain checks such as branch
+            // name validation
+            const isDevMode = core.getInput('devMode') === 'true';
             // Ensure that we're on the release branch, if we're not on the release
-            // branch then immediately kill the job and provide some basic feedback
+            // branch then immediately fail the job and provide some basic feedback
             const currentBranch = github_1.context.ref;
-            if (!currentBranch.includes('release/')) {
+            if (!isDevMode && !currentBranch.includes('release/')) {
                 core.setFailed(`A deployment to staging was triggered from ${github_1.context.ref}. Staging deployments may only be triggered from release branches.`);
             }
         }
