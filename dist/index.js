@@ -954,6 +954,7 @@ function run() {
     var _a, _b;
     return __awaiter(this, void 0, void 0, function* () {
         try {
+            // const {GITHUB_REF, GITHUB_SHA} = process.env
             // You can use the isDevMode flag to skip certain checks such as branch
             // name validation
             const isDevMode = core.getInput('dev_mode') === 'true';
@@ -968,6 +969,8 @@ function run() {
                 ? (_a = github_1.context.payload.comment) === null || _a === void 0 ? void 0 : _a.body : null;
             const { owner, repo } = github_1.context.repo;
             if (comment === STAGING_DEPLOY_COMMENT && ((_b = github_1.context.payload.comment) === null || _b === void 0 ? void 0 : _b.id)) {
+                const newTag = `staging-${new Date().getTime()}`;
+                core.debug(`tagging ${github_1.context.ref} with ${newTag}`);
                 // React to the comment to acknowledge that we've tagged the branch
                 yield client.reactions.createForIssueComment({
                     owner,
