@@ -2054,7 +2054,11 @@ function run() {
             const comment = github_1.context.eventName === 'issue_comment'
                 ? github_1.context.payload.comment.body
                 : false;
-            if (comment === STAGING_DEPLOY_COMMENT && github_1.context.payload.comment.id) {
+            if (comment && comment !== STAGING_DEPLOY_COMMENT) {
+                core.setFailed(`comment did not match "${STAGING_DEPLOY_COMMENT}"`);
+                return;
+            }
+            if (comment) {
                 const { GITHUB_SHA } = process.env;
                 if (!GITHUB_SHA) {
                     core.setFailed('GITHUB_SHA not found');

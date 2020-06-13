@@ -30,7 +30,12 @@ async function run(): Promise<void> {
         ? context.payload.comment.body
         : false
 
-    if (comment === STAGING_DEPLOY_COMMENT && context.payload.comment.id) {
+    if (comment && comment !== STAGING_DEPLOY_COMMENT) {
+      core.setFailed(`comment did not match "${STAGING_DEPLOY_COMMENT}"`)
+      return
+    }
+
+    if (comment) {
       const {GITHUB_SHA} = process.env
 
       if (!GITHUB_SHA) {
