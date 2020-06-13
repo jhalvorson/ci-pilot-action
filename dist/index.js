@@ -2031,6 +2031,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+/* eslint-disable no-console */
 const core = __importStar(__webpack_require__(470));
 const github_1 = __importStar(__webpack_require__(469));
 const STAGING_DEPLOY_COMMENT = 'ci-pilot deploy to staging';
@@ -2048,11 +2049,11 @@ function run() {
             // Ensure that we're on the release branch, if we're not on the release
             // branch then immediately fail the job and provide some basic feedback
             const currentBranch = github_1.context.ref;
-            core.info('checking branch name');
+            console.log('checking branch name');
             if (!isDevMode && !currentBranch.includes('release/')) {
                 core.setFailed(`A deployment to staging was triggered from ${github_1.context.ref}. Staging deployments may only be triggered from release branches.`);
             }
-            core.info('checking for comment');
+            console.log('checking for comment');
             const comment = github_1.context.eventName === 'issue_comment'
                 ? github_1.context.payload.comment.body
                 : false;
@@ -2061,7 +2062,7 @@ function run() {
                 return;
             }
             if (comment) {
-                core.info('comment detected and is valid, proceeding.');
+                console.log('comment detected and is valid, proceeding.');
                 const { GITHUB_SHA } = process.env;
                 if (!GITHUB_SHA) {
                     core.setFailed('GITHUB_SHA not found');
@@ -2070,7 +2071,7 @@ function run() {
                 const client = new github_1.default.GitHub(token);
                 const { owner, repo } = github_1.context.repo;
                 const newTag = `staging-${new Date().getTime()}`;
-                core.info(`tagging ${github_1.context.ref} with ${newTag}`);
+                console.log(`tagging ${github_1.context.ref} with ${newTag}`);
                 const commitNewTag = yield client.git.createTag(Object.assign(Object.assign({}, github_1.context.repo), { tag: newTag, message: newTag, object: GITHUB_SHA, type: 'commit' }));
                 yield client.git
                     .createRef(Object.assign(Object.assign({}, github_1.context.repo), { ref: `refs/tags/${newTag}`, sha: commitNewTag.data.sha }))
@@ -2096,7 +2097,6 @@ function run() {
     });
 }
 run().catch(err => {
-    // eslint-disable-next-line no-console
     console.error(err);
     core.setFailed('An unexpected error occured during run');
 });
