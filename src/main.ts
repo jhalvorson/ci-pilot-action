@@ -1,12 +1,14 @@
 /* eslint-disable no-console */
 import * as core from '@actions/core'
-import github, {context} from '@actions/github'
+import {context, GitHub} from '@actions/github'
 
 const STAGING_DEPLOY_COMMENT = 'ci-pilot deploy to staging'
 
 async function run(): Promise<void> {
   try {
+    // Setup
     const token = core.getInput('token', {required: true})
+    const client = new GitHub(token)
 
     if (!token) {
       core.setFailed('GITHUB_TOKEN is required.')
@@ -47,7 +49,6 @@ async function run(): Promise<void> {
         return
       }
 
-      const client = new github.GitHub(token)
       const {owner, repo} = context.repo
 
       const newTag = `staging-${new Date().getTime()}`

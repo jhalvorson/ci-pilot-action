@@ -2033,12 +2033,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 /* eslint-disable no-console */
 const core = __importStar(__webpack_require__(470));
-const github_1 = __importStar(__webpack_require__(469));
+const github_1 = __webpack_require__(469);
 const STAGING_DEPLOY_COMMENT = 'ci-pilot deploy to staging';
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
+            // Setup
             const token = core.getInput('token', { required: true });
+            const client = new github_1.GitHub(token);
             if (!token) {
                 core.setFailed('GITHUB_TOKEN is required.');
                 return;
@@ -2068,7 +2070,6 @@ function run() {
                     core.setFailed('GITHUB_SHA not found');
                     return;
                 }
-                const client = new github_1.default.GitHub(token);
                 const { owner, repo } = github_1.context.repo;
                 const newTag = `staging-${new Date().getTime()}`;
                 console.log(`tagging ${github_1.context.ref} with ${newTag}`);
