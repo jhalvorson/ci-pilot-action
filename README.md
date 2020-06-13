@@ -8,6 +8,18 @@ A bolt on set of GitHub Actions to perfect your release, deployment and sign off
 
 ## Adding this to your repository
 
+First you need to add create a workflow and and add the job. In `.github/workflows/release.yml` add the following:
+
+```yml
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: jhalvorson/ci-pilot-staging-release@v1
+        with:
+          token: "${{ secrets.GITHUB_TOKEN }}"
+```
 
 ## Action: Stage Release
 

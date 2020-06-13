@@ -2055,17 +2055,30 @@ function run() {
                 ? github_1.context.payload.comment.body
                 : false;
             if (comment === STAGING_DEPLOY_COMMENT && github_1.context.payload.comment.id) {
+                const { GITHUB_SHA } = process.env;
+                if (!GITHUB_SHA) {
+                    core.setFailed('GITHUB_SHA not found');
+                    return;
+                }
                 const client = new github_1.default.GitHub(token);
                 const { owner, repo } = github_1.context.repo;
                 const newTag = `staging-${new Date().getTime()}`;
                 core.debug(`tagging ${github_1.context.ref} with ${newTag}`);
-                // React to the comment to acknowledge that we've tagged the branch
-                yield client.reactions.createForIssueComment({
-                    owner,
-                    repo,
-                    // eslint-disable-next-line @typescript-eslint/camelcase
-                    comment_id: github_1.context.payload.comment.id,
-                    content: '+1'
+                const commitNewTag = yield client.git.createTag(Object.assign(Object.assign({}, github_1.context.repo), { tag: newTag, message: newTag, object: GITHUB_SHA, type: 'commit' }));
+                yield client.git
+                    .createRef(Object.assign(Object.assign({}, github_1.context.repo), { ref: `refs/tags/${newTag}`, sha: commitNewTag.data.sha }))
+                    .then(() => __awaiter(this, void 0, void 0, function* () {
+                    // React to the comment to acknowledge that we've tagged the branch
+                    yield client.reactions.createForIssueComment({
+                        owner,
+                        repo,
+                        // eslint-disable-next-line @typescript-eslint/camelcase
+                        comment_id: github_1.context.payload.comment.id,
+                        content: '+1'
+                    });
+                }))
+                    .catch(() => {
+                    core.setFailed('failed to commit new tag');
                 });
             }
         }

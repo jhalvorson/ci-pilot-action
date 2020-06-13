@@ -31,20 +31,46 @@ async function run(): Promise<void> {
         : false
 
     if (comment === STAGING_DEPLOY_COMMENT && context.payload.comment.id) {
+      const {GITHUB_SHA} = process.env
+
+      if (!GITHUB_SHA) {
+        core.setFailed('GITHUB_SHA not found')
+        return
+      }
+
       const client = new github.GitHub(token)
       const {owner, repo} = context.repo
 
       const newTag = `staging-${new Date().getTime()}`
       core.debug(`tagging ${context.ref} with ${newTag}`)
 
-      // React to the comment to acknowledge that we've tagged the branch
-      await client.reactions.createForIssueComment({
-        owner,
-        repo,
-        // eslint-disable-next-line @typescript-eslint/camelcase
-        comment_id: context.payload.comment.id,
-        content: '+1'
+      const commitNewTag = await client.git.createTag({
+        ...context.repo,
+        tag: newTag,
+        message: newTag,
+        object: GITHUB_SHA,
+        type: 'commit'
       })
+
+      await client.git
+        .createRef({
+          ...context.repo,
+          ref: `refs/tags/${newTag}`,
+          sha: commitNewTag.data.sha
+        })
+        .then(async () => {
+          // React to the comment to acknowledge that we've tagged the branch
+          await client.reactions.createForIssueComment({
+            owner,
+            repo,
+            // eslint-disable-next-line @typescript-eslint/camelcase
+            comment_id: context.payload.comment.id,
+            content: '+1'
+          })
+        })
+        .catch(() => {
+          core.setFailed('failed to commit new tag')
+        })
     }
   } catch (error) {
     // The action has failed, use built in error handling
