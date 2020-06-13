@@ -33,9 +33,6 @@ async function run(): Promise<void> {
         ? context.payload.comment.body
         : false
 
-    console.log(comment)
-    console.log(context.payload)
-
     if (comment && comment !== STAGING_DEPLOY_COMMENT) {
       core.setFailed(`comment did not match "${STAGING_DEPLOY_COMMENT}"`)
       return
