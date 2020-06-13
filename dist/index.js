@@ -9120,11 +9120,9 @@ const core = __importStar(__webpack_require__(470));
 exports.listCommands = (client, context) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         console.log('running help command');
-        const body = '### :wave: here are some helpful commands\n\n\n`ci-pilot deploy to staging`\nThis will tag your current branch with a staging command, allowing your CI to deploy to a staging environment.';
+        const body = '### :wave: CI Pilot here :woman_pilot:\n\n\n\nYou can use the following commands to control ci-pilot:\n\n\n`ci-pilot deploy to staging`\n\nThis will tag your current branch with a staging command, allowing your CI to deploy to a staging environment.';
         if (context.issue.number) {
-            yield client.issues.createComment(Object.assign(Object.assign({}, context.repo), { body, 
-                // eslint-disable-next-line @typescript-eslint/camelcase
-                issue_number: context.issue.number }));
+            yield client.issues.createComment(Object.assign(Object.assign({}, context.repo), { body, issue_number: context.issue.number }));
         }
     }
     catch (err) {
@@ -24991,16 +24989,14 @@ exports.tagStaging = (client, context) => __awaiter(void 0, void 0, void 0, func
         console.log('comment detected and is valid, proceeding.');
         const newTag = `staging-${new Date().getTime()}`;
         console.log(`tagging branch with ${newTag}`);
-        const commitsOnPR = yield client.pulls.listCommits();
+        const commitsOnPR = yield client.pulls.listCommits(Object.assign(Object.assign({}, context.repo), { pull_number: context.issue.number }));
         const lastCommit = commitsOnPR.data[commitsOnPR.data.length - 1].sha;
         const commitNewTag = yield client.git.createTag(Object.assign(Object.assign({}, context.repo), { tag: newTag, message: newTag, object: lastCommit, type: 'commit' }));
         return client.git
             .createRef(Object.assign(Object.assign({}, context.repo), { ref: `refs/tags/${newTag}`, sha: commitNewTag.data.sha }))
             .then(() => __awaiter(void 0, void 0, void 0, function* () {
             // React to the comment to acknowledge that we've tagged the branch
-            yield client.reactions.createForIssueComment(Object.assign(Object.assign({}, context.repo), { 
-                // eslint-disable-next-line @typescript-eslint/camelcase
-                comment_id: context.payload.comment.id, content: '+1' }));
+            yield client.reactions.createForIssueComment(Object.assign(Object.assign({}, context.repo), { comment_id: context.payload.comment.id, content: '+1' }));
         }))
             .catch(() => {
             core.setFailed('failed to commit new tag');

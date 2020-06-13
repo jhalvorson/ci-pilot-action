@@ -12,7 +12,10 @@ export const tagStaging = async (
     const newTag = `staging-${new Date().getTime()}`
     console.log(`tagging branch with ${newTag}`)
 
-    const commitsOnPR = await client.pulls.listCommits()
+    const commitsOnPR = await client.pulls.listCommits({
+      ...context.repo,
+      pull_number: context.issue.number
+    })
     const lastCommit = commitsOnPR.data[commitsOnPR.data.length - 1].sha
 
     const commitNewTag = await client.git.createTag({
@@ -33,7 +36,6 @@ export const tagStaging = async (
         // React to the comment to acknowledge that we've tagged the branch
         await client.reactions.createForIssueComment({
           ...context.repo,
-          // eslint-disable-next-line @typescript-eslint/camelcase
           comment_id: context.payload.comment.id,
           content: '+1'
         })
