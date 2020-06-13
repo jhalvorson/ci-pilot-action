@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
-      - uses: ci-pilot-staging-release@v1
+      - uses: jhalvorson/ci-pilot-action@v1.0.0
         with:
           token: "${{ secrets.GITHUB_TOKEN }}"
 ```
