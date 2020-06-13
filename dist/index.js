@@ -948,17 +948,34 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const core = __importStar(__webpack_require__(470));
 const github_1 = __webpack_require__(469);
+const utils_1 = __webpack_require__(521);
+const STAGING_DEPLOY_COMMENT = 'ci-pilot deploy to staging';
 function run() {
+    var _a, _b;
     return __awaiter(this, void 0, void 0, function* () {
         try {
             // You can use the isDevMode flag to skip certain checks such as branch
             // name validation
-            const isDevMode = core.getInput('devMode') === 'true';
+            const isDevMode = core.getInput('dev_mode') === 'true';
             // Ensure that we're on the release branch, if we're not on the release
             // branch then immediately fail the job and provide some basic feedback
             const currentBranch = github_1.context.ref;
             if (!isDevMode && !currentBranch.includes('release/')) {
                 core.setFailed(`A deployment to staging was triggered from ${github_1.context.ref}. Staging deployments may only be triggered from release branches.`);
+            }
+            const client = new utils_1.GitHub();
+            const comment = github_1.context.eventName === 'issue_comment'
+                ? (_a = github_1.context.payload.comment) === null || _a === void 0 ? void 0 : _a.body : null;
+            const { owner, repo } = github_1.context.repo;
+            if (comment === STAGING_DEPLOY_COMMENT && ((_b = github_1.context.payload.comment) === null || _b === void 0 ? void 0 : _b.id)) {
+                // React to the comment to acknowledge that we've tagged the branch
+                yield client.reactions.createForIssueComment({
+                    owner,
+                    repo,
+                    // eslint-disable-next-line @typescript-eslint/camelcase
+                    comment_id: github_1.context.payload.comment.id,
+                    content: '+1'
+                });
             }
         }
         catch (error) {

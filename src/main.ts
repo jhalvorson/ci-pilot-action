@@ -6,6 +6,8 @@ const STAGING_DEPLOY_COMMENT = 'ci-pilot deploy to staging'
 
 async function run(): Promise<void> {
   try {
+    // const {GITHUB_REF, GITHUB_SHA} = process.env
+
     // You can use the isDevMode flag to skip certain checks such as branch
     // name validation
     const isDevMode: boolean = core.getInput('dev_mode') === 'true'
@@ -27,6 +29,9 @@ async function run(): Promise<void> {
     const {owner, repo} = context.repo
 
     if (comment === STAGING_DEPLOY_COMMENT && context.payload.comment?.id) {
+      const newTag = `staging-${new Date().getTime()}`
+      core.debug(`tagging ${context.ref} with ${newTag}`)
+
       // React to the comment to acknowledge that we've tagged the branch
       await client.reactions.createForIssueComment({
         owner,
