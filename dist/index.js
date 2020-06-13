@@ -949,9 +949,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const core = __importStar(__webpack_require__(470));
 const github_1 = __webpack_require__(469);
 const utils_1 = __webpack_require__(521);
-const STAGING_DEPLOY_COMMENT = 'ci-pilot deploy to staging';
+// const STAGING_DEPLOY_COMMENT = 'ci-pilot deploy to staging'
 function run() {
-    var _a, _b;
     return __awaiter(this, void 0, void 0, function* () {
         try {
             // const {GITHUB_REF, GITHUB_SHA} = process.env
@@ -965,12 +964,16 @@ function run() {
                 core.setFailed(`A deployment to staging was triggered from ${github_1.context.ref}. Staging deployments may only be triggered from release branches.`);
             }
             const client = new utils_1.GitHub();
-            const comment = github_1.context.eventName === 'issue_comment'
-                ? (_a = github_1.context.payload.comment) === null || _a === void 0 ? void 0 : _a.body : null;
+            // const comment =
+            //   context.eventName === 'issue_comment'
+            //     ? context.payload.comment?.body
+            //     : null
             const { owner, repo } = github_1.context.repo;
-            if (comment === STAGING_DEPLOY_COMMENT && ((_b = github_1.context.payload.comment) === null || _b === void 0 ? void 0 : _b.id)) {
-                const newTag = `staging-${new Date().getTime()}`;
-                core.debug(`tagging ${github_1.context.ref} with ${newTag}`);
+            // core.debug(context.payload.comment);
+            // if (comment === STAGING_DEPLOY_COMMENT && context.payload.comment?.id) {
+            //   const newTag = `staging-${new Date().getTime()}`
+            //   core.debug(`tagging ${context.ref} with ${newTag}`)
+            if (github_1.context.payload.comment) {
                 // React to the comment to acknowledge that we've tagged the branch
                 yield client.reactions.createForIssueComment({
                     owner,
@@ -980,6 +983,7 @@ function run() {
                     content: '+1'
                 });
             }
+            // }
         }
         catch (error) {
             // The action has failed, use built in error handling
