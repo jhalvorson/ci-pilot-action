@@ -25,3 +25,4 @@ jobs:
       - uses: ./
         with:
           dev_mode: "true"
+          token: "${{ secrets.GITHUB_TOKEN }}"

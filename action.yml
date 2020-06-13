@@ -8,11 +8,7 @@ inputs:
     default: "false"
   token:
     description: 'The GitHub authentication token'
-    default: ${{ github.token }}
-    required: true
-  body:
-    description: 'The contents of the comment.'
-    required: true
+    required: false
 outputs:
   comment_body:
     description: "the comment left on the PR"

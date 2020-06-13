@@ -1,14 +1,13 @@
 import * as core from '@actions/core'
-import {context} from '@actions/github'
-import {GitHub} from '@actions/github/lib/utils'
+import github, {context} from '@actions/github'
 
-// const STAGING_DEPLOY_COMMENT = 'ci-pilot deploy to staging'
+const STAGING_DEPLOY_COMMENT = 'ci-pilot deploy to staging'
 
 async function run(): Promise<void> {
   try {
-    const {GITHUB_TOKEN} = process.env
+    const token = core.getInput('token', {required: true})
 
-    if (!GITHUB_TOKEN) {
+    if (!token) {
       core.setFailed('GITHUB_TOKEN is required.')
       return
     }
@@ -26,21 +25,18 @@ async function run(): Promise<void> {
       )
     }
 
-    const client = new GitHub({
-      auth: GITHUB_TOKEN
-    })
-    // const comment =
-    //   context.eventName === 'issue_comment'
-    //     ? context.payload.comment?.body
-    //     : null
-    const {owner, repo} = context.repo
+    const comment =
+      context.eventName === 'issue_comment'
+        ? context.payload.comment.body
+        : false
 
-    // core.debug(context.payload.comment);
+    if (comment === STAGING_DEPLOY_COMMENT && context.payload.comment.id) {
+      const client = new github.GitHub(token)
+      const {owner, repo} = context.repo
 
-    // if (comment === STAGING_DEPLOY_COMMENT && context.payload.comment?.id) {
-    //   const newTag = `staging-${new Date().getTime()}`
-    //   core.debug(`tagging ${context.ref} with ${newTag}`)
-    if (context.payload.comment) {
+      const newTag = `staging-${new Date().getTime()}`
+      core.debug(`tagging ${context.ref} with ${newTag}`)
+
       // React to the comment to acknowledge that we've tagged the branch
       await client.reactions.createForIssueComment({
         owner,
@@ -50,11 +46,14 @@ async function run(): Promise<void> {
         content: '+1'
       })
     }
-    // }
   } catch (error) {
     // The action has failed, use built in error handling
     core.setFailed(error.message)
   }
 }
 
-run()
+run().catch(err => {
+  // eslint-disable-next-line no-console
+  console.error(err)
+  core.setFailed('An unexpected error occured during run')
+})
