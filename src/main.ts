@@ -19,12 +19,14 @@ async function run(): Promise<void> {
     // Ensure that we're on the release branch, if we're not on the release
     // branch then immediately fail the job and provide some basic feedback
     const currentBranch = context.ref
+    core.debug('checking branch name')
     if (!isDevMode && !currentBranch.includes('release/')) {
       core.setFailed(
         `A deployment to staging was triggered from ${context.ref}. Staging deployments may only be triggered from release branches.`
       )
     }
 
+    core.debug('checking for comment')
     const comment =
       context.eventName === 'issue_comment'
         ? context.payload.comment.body
@@ -36,6 +38,7 @@ async function run(): Promise<void> {
     }
 
     if (comment) {
+      core.debug('comment detected and is valid, proceeding.')
       const {GITHUB_SHA} = process.env
 
       if (!GITHUB_SHA) {
