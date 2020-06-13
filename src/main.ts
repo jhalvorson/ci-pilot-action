@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import * as core from '@actions/core'
 import github, {context} from '@actions/github'
 
@@ -19,18 +20,26 @@ async function run(): Promise<void> {
     // Ensure that we're on the release branch, if we're not on the release
     // branch then immediately fail the job and provide some basic feedback
     const currentBranch = context.ref
+    console.log('checking branch name')
     if (!isDevMode && !currentBranch.includes('release/')) {
       core.setFailed(
         `A deployment to staging was triggered from ${context.ref}. Staging deployments may only be triggered from release branches.`
       )
     }
 
+    console.log('checking for comment')
     const comment =
       context.eventName === 'issue_comment'
         ? context.payload.comment.body
         : false
 
-    if (comment === STAGING_DEPLOY_COMMENT && context.payload.comment.id) {
+    if (comment && comment !== STAGING_DEPLOY_COMMENT) {
+      core.setFailed(`comment did not match "${STAGING_DEPLOY_COMMENT}"`)
+      return
+    }
+
+    if (comment) {
+      console.log('comment detected and is valid, proceeding.')
       const {GITHUB_SHA} = process.env
 
       if (!GITHUB_SHA) {
@@ -42,7 +51,7 @@ async function run(): Promise<void> {
       const {owner, repo} = context.repo
 
       const newTag = `staging-${new Date().getTime()}`
-      core.debug(`tagging ${context.ref} with ${newTag}`)
+      console.log(`tagging ${context.ref} with ${newTag}`)
 
       const commitNewTag = await client.git.createTag({
         ...context.repo,
@@ -79,7 +88,6 @@ async function run(): Promise<void> {
 }
 
 run().catch(err => {
-  // eslint-disable-next-line no-console
   console.error(err)
   core.setFailed('An unexpected error occured during run')
 })
