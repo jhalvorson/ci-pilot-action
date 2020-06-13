@@ -2061,7 +2061,6 @@ function run() {
             const comment = github_1.context.eventName === 'issue_comment'
                 ? github_1.context.payload.comment.body
                 : false;
-            console.log({ comment, body: github_1.context.payload.comment.body });
             if (comment === STAGING_DEPLOY_COMMENT) {
                 tag_staging_1.tagStaging(client);
             }

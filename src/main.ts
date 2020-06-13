@@ -37,8 +37,6 @@ async function run(): Promise<void> {
         ? context.payload.comment.body
         : false
 
-    console.log({comment, body: context.payload.comment.body})
-
     if (comment === STAGING_DEPLOY_COMMENT) {
       tagStaging(client)
     }
