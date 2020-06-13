@@ -1,6 +1,11 @@
 name: "ci-pilot-stage-release"
 description: "A set of actions for ci-pilot"
 author: "Jamie Halvorson"
+inputs:
+  devMode:
+    description: 'run the action in development mode'
+    required: false
+    default: "false"
 runs:
   using: "node12"
   main: "dist/index.js"
