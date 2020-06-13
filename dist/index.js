@@ -2031,10 +2031,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-/* eslint-disable no-console */
 const core = __importStar(__webpack_require__(470));
 const github_1 = __webpack_require__(469);
+const tag_staging_1 = __webpack_require__(947);
+const list_commands_1 = __webpack_require__(767);
 const STAGING_DEPLOY_COMMENT = 'ci-pilot deploy to staging';
+const HELP_COMMENT = 'ci-pilot help';
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -2056,39 +2058,14 @@ function run() {
                 core.setFailed(`A deployment to staging was triggered from ${github_1.context.ref}. Staging deployments may only be triggered from release branches.`);
             }
             console.log('checking for comment');
-            const comment = github_1.context.eventName === 'issue_comment'
+            const comment = github_1.context.eventName === 'pull_request_review_comment'
                 ? github_1.context.payload.comment.body
                 : false;
-            if (comment && comment !== STAGING_DEPLOY_COMMENT) {
-                core.setFailed(`comment did not match "${STAGING_DEPLOY_COMMENT}"`);
-                return;
+            if (comment === STAGING_DEPLOY_COMMENT) {
+                tag_staging_1.tagStaging(client);
             }
-            if (comment) {
-                console.log('comment detected and is valid, proceeding.');
-                const { GITHUB_SHA } = process.env;
-                if (!GITHUB_SHA) {
-                    core.setFailed('GITHUB_SHA not found');
-                    return;
-                }
-                const { owner, repo } = github_1.context.repo;
-                const newTag = `staging-${new Date().getTime()}`;
-                console.log(`tagging ${github_1.context.ref} with ${newTag}`);
-                const commitNewTag = yield client.git.createTag(Object.assign(Object.assign({}, github_1.context.repo), { tag: newTag, message: newTag, object: GITHUB_SHA, type: 'commit' }));
-                yield client.git
-                    .createRef(Object.assign(Object.assign({}, github_1.context.repo), { ref: `refs/tags/${newTag}`, sha: commitNewTag.data.sha }))
-                    .then(() => __awaiter(this, void 0, void 0, function* () {
-                    // React to the comment to acknowledge that we've tagged the branch
-                    yield client.reactions.createForIssueComment({
-                        owner,
-                        repo,
-                        // eslint-disable-next-line @typescript-eslint/camelcase
-                        comment_id: github_1.context.payload.comment.id,
-                        content: '+1'
-                    });
-                }))
-                    .catch(() => {
-                    core.setFailed('failed to commit new tag');
-                });
+            if (comment === HELP_COMMENT) {
+                list_commands_1.listCommands(client);
             }
         }
         catch (error) {
@@ -9100,6 +9077,36 @@ function removeHook (state, name, method) {
 
   state.registry[name].splice(index, 1)
 }
+
+
+/***/ }),
+
+/***/ 767:
+/***/ (function(__unusedmodule, exports, __webpack_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.listCommands = void 0;
+const github_1 = __webpack_require__(469);
+exports.listCommands = (client) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    const body = '### :wave: here are some helpful commands\n\n\n`ci-pilot deploy to staging`\nThis will tag your current branch with a staging command, allowing your CI to deploy to a staging environment.';
+    if ((_a = github_1.context.payload.pull_request) === null || _a === void 0 ? void 0 : _a.number) {
+        yield client.issues.createComment(Object.assign(Object.assign({}, github_1.context.repo), { body, 
+            // eslint-disable-next-line @typescript-eslint/camelcase
+            issue_number: github_1.context.payload.pull_request.number }));
+    }
+});
 
 
 /***/ }),
@@ -24915,6 +24922,71 @@ function hasNextPage (link) {
   deprecate(`octokit.hasNextPage() – You can use octokit.paginate or async iterators instead: https://github.com/octokit/rest.js#pagination.`)
   return getPageLinks(link).next
 }
+
+
+/***/ }),
+
+/***/ 947:
+/***/ (function(__unusedmodule, exports, __webpack_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.tagStaging = void 0;
+const github_1 = __webpack_require__(469);
+const core = __importStar(__webpack_require__(470));
+exports.tagStaging = (client) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log('comment detected and is valid, proceeding.');
+    const { owner, repo } = github_1.context.repo;
+    const newTag = `staging-${new Date().getTime()}`;
+    console.log(`tagging ${github_1.context.ref} with ${newTag}`);
+    const commitsOnPR = yield client.pulls.listCommits();
+    const lastCommit = commitsOnPR.data[commitsOnPR.data.length - 1].sha;
+    const commitNewTag = yield client.git.createTag(Object.assign(Object.assign({}, github_1.context.repo), { tag: newTag, message: newTag, object: lastCommit, type: 'commit' }));
+    return client.git
+        .createRef(Object.assign(Object.assign({}, github_1.context.repo), { ref: `refs/tags/${newTag}`, sha: commitNewTag.data.sha }))
+        .then(() => __awaiter(void 0, void 0, void 0, function* () {
+        // React to the comment to acknowledge that we've tagged the branch
+        yield client.reactions.createForIssueComment({
+            owner,
+            repo,
+            // eslint-disable-next-line @typescript-eslint/camelcase
+            comment_id: github_1.context.payload.comment.id,
+            content: '+1'
+        });
+    }))
+        .catch(() => {
+        core.setFailed('failed to commit new tag');
+    });
+});
 
 
 /***/ }),
