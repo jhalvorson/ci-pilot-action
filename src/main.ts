@@ -38,11 +38,11 @@ async function run(): Promise<void> {
         : false
 
     if (comment === STAGING_DEPLOY_COMMENT) {
-      tagStaging(client)
+      tagStaging(client, context)
     }
 
     if (comment === HELP_COMMENT) {
-      listCommands(client)
+      listCommands(client, context)
     }
   } catch (error) {
     // The action has failed, use built in error handling

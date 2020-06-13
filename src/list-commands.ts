@@ -1,7 +1,11 @@
-import {GitHub, context} from '@actions/github'
+import {GitHub} from '@actions/github'
 import * as core from '@actions/core'
+import {Context} from '@actions/github/lib/context'
 
-export const listCommands = async (client: GitHub): Promise<void> => {
+export const listCommands = async (
+  client: GitHub,
+  context: Context
+): Promise<void> => {
   try {
     console.log('running help command')
     const body =

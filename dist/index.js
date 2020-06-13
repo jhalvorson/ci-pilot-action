@@ -2062,10 +2062,10 @@ function run() {
                 ? github_1.context.payload.comment.body
                 : false;
             if (comment === STAGING_DEPLOY_COMMENT) {
-                tag_staging_1.tagStaging(client);
+                tag_staging_1.tagStaging(client, github_1.context);
             }
             if (comment === HELP_COMMENT) {
-                list_commands_1.listCommands(client);
+                list_commands_1.listCommands(client, github_1.context);
             }
         }
         catch (error) {
@@ -9116,17 +9116,16 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.listCommands = void 0;
-const github_1 = __webpack_require__(469);
 const core = __importStar(__webpack_require__(470));
-exports.listCommands = (client) => __awaiter(void 0, void 0, void 0, function* () {
+exports.listCommands = (client, context) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     try {
         console.log('running help command');
         const body = '### :wave: here are some helpful commands\n\n\n`ci-pilot deploy to staging`\nThis will tag your current branch with a staging command, allowing your CI to deploy to a staging environment.';
-        if ((_a = github_1.context.payload.pull_request) === null || _a === void 0 ? void 0 : _a.number) {
-            yield client.issues.createComment(Object.assign(Object.assign({}, github_1.context.repo), { body, 
+        if ((_a = context.payload.pull_request) === null || _a === void 0 ? void 0 : _a.number) {
+            yield client.issues.createComment(Object.assign(Object.assign({}, context.repo), { body, 
                 // eslint-disable-next-line @typescript-eslint/camelcase
-                issue_number: github_1.context.payload.pull_request.number }));
+                issue_number: context.payload.pull_request.number }));
         }
     }
     catch (err) {
@@ -24987,28 +24986,22 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.tagStaging = void 0;
-const github_1 = __webpack_require__(469);
 const core = __importStar(__webpack_require__(470));
-exports.tagStaging = (client) => __awaiter(void 0, void 0, void 0, function* () {
+exports.tagStaging = (client, context) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         console.log('comment detected and is valid, proceeding.');
-        const { owner, repo } = github_1.context.repo;
         const newTag = `staging-${new Date().getTime()}`;
-        console.log(`tagging ${github_1.context.ref} with ${newTag}`);
+        console.log(`tagging branch with ${newTag}`);
         const commitsOnPR = yield client.pulls.listCommits();
         const lastCommit = commitsOnPR.data[commitsOnPR.data.length - 1].sha;
-        const commitNewTag = yield client.git.createTag(Object.assign(Object.assign({}, github_1.context.repo), { tag: newTag, message: newTag, object: lastCommit, type: 'commit' }));
+        const commitNewTag = yield client.git.createTag(Object.assign(Object.assign({}, context.repo), { tag: newTag, message: newTag, object: lastCommit, type: 'commit' }));
         return client.git
-            .createRef(Object.assign(Object.assign({}, github_1.context.repo), { ref: `refs/tags/${newTag}`, sha: commitNewTag.data.sha }))
+            .createRef(Object.assign(Object.assign({}, context.repo), { ref: `refs/tags/${newTag}`, sha: commitNewTag.data.sha }))
             .then(() => __awaiter(void 0, void 0, void 0, function* () {
             // React to the comment to acknowledge that we've tagged the branch
-            yield client.reactions.createForIssueComment({
-                owner,
-                repo,
+            yield client.reactions.createForIssueComment(Object.assign(Object.assign({}, context.repo), { 
                 // eslint-disable-next-line @typescript-eslint/camelcase
-                comment_id: github_1.context.payload.comment.id,
-                content: '+1'
-            });
+                comment_id: context.payload.comment.id, content: '+1' }));
         }))
             .catch(() => {
             core.setFailed('failed to commit new tag');

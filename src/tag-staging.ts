@@ -1,14 +1,16 @@
-import {context, GitHub} from '@actions/github'
+import {GitHub} from '@actions/github'
 import * as core from '@actions/core'
+import {Context} from '@actions/github/lib/context'
 
-export const tagStaging = async (client: GitHub): Promise<void> => {
+export const tagStaging = async (
+  client: GitHub,
+  context: Context
+): Promise<void> => {
   try {
     console.log('comment detected and is valid, proceeding.')
 
-    const {owner, repo} = context.repo
-
     const newTag = `staging-${new Date().getTime()}`
-    console.log(`tagging ${context.ref} with ${newTag}`)
+    console.log(`tagging branch with ${newTag}`)
 
     const commitsOnPR = await client.pulls.listCommits()
     const lastCommit = commitsOnPR.data[commitsOnPR.data.length - 1].sha
@@ -30,8 +32,7 @@ export const tagStaging = async (client: GitHub): Promise<void> => {
       .then(async () => {
         // React to the comment to acknowledge that we've tagged the branch
         await client.reactions.createForIssueComment({
-          owner,
-          repo,
+          ...context.repo,
           // eslint-disable-next-line @typescript-eslint/camelcase
           comment_id: context.payload.comment.id,
           content: '+1'
