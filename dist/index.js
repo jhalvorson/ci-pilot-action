@@ -2059,7 +2059,7 @@ function run() {
             }
             console.log('checking for comment');
             const comment = github_1.context.eventName === 'issue_comment'
-                ? github_1.context.payload.comment.body
+                ? github_1.context.payload.comment.comment
                 : false;
             console.log({ comment, body: github_1.context.payload.comment });
             if (comment === STAGING_DEPLOY_COMMENT) {
