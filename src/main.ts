@@ -6,7 +6,12 @@ import {GitHub} from '@actions/github/lib/utils'
 
 async function run(): Promise<void> {
   try {
-    // const {GITHUB_REF, GITHUB_SHA} = process.env
+    const {GITHUB_TOKEN} = process.env
+
+    if (!GITHUB_TOKEN) {
+      core.setFailed('GITHUB_TOKEN is required.')
+      return
+    }
 
     // You can use the isDevMode flag to skip certain checks such as branch
     // name validation
@@ -21,7 +26,9 @@ async function run(): Promise<void> {
       )
     }
 
-    const client = new GitHub()
+    const client = new GitHub({
+      auth: GITHUB_TOKEN
+    })
     // const comment =
     //   context.eventName === 'issue_comment'
     //     ? context.payload.comment?.body

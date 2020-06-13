@@ -953,7 +953,11 @@ const utils_1 = __webpack_require__(521);
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            // const {GITHUB_REF, GITHUB_SHA} = process.env
+            const { GITHUB_TOKEN } = process.env;
+            if (!GITHUB_TOKEN) {
+                core.setFailed('GITHUB_TOKEN is required.');
+                return;
+            }
             // You can use the isDevMode flag to skip certain checks such as branch
             // name validation
             const isDevMode = core.getInput('dev_mode') === 'true';
@@ -963,7 +967,9 @@ function run() {
             if (!isDevMode && !currentBranch.includes('release/')) {
                 core.setFailed(`A deployment to staging was triggered from ${github_1.context.ref}. Staging deployments may only be triggered from release branches.`);
             }
-            const client = new utils_1.GitHub();
+            const client = new utils_1.GitHub({
+                auth: GITHUB_TOKEN
+            });
             // const comment =
             //   context.eventName === 'issue_comment'
             //     ? context.payload.comment?.body
