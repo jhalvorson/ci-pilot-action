@@ -1,17 +1,17 @@
 import * as core from '@actions/core'
-import {wait} from './wait'
+import { context } from '@actions/github';
 
 async function run(): Promise<void> {
   try {
-    const ms: string = core.getInput('milliseconds')
-    core.debug(`Waiting ${ms} milliseconds ...`)
-
-    core.debug(new Date().toTimeString())
-    await wait(parseInt(ms, 10))
-    core.debug(new Date().toTimeString())
-
-    core.setOutput('time', new Date().toTimeString())
+    // Ensure that we're on the release branch, if we're not on the release
+    // branch then immediately kill the job and provide some basic feedback
+    const currentBranch = context.ref
+    if (!currentBranch.includes('release/')) {
+      core.setFailed(`A deployment to staging was triggered from ${context.ref}. Staging deployments may only be triggered from release branches.`)
+    }
+    
   } catch (error) {
+    // The action has failed, use built in error handling
     core.setFailed(error.message)
   }
 }
